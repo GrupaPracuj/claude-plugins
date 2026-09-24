@@ -1,0 +1,3 @@
+# Plik z definicją defaultowych reviewerów,
+# Szczegóły: https://help.github.com/articles/about-codeowners/
+*        @GrupaPracuj/stem
