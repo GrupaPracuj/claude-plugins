@@ -1,0 +1,14 @@
+{
+  "name": "theprotocol-it",
+  "displayName": "theprotocol.it",
+  "version": "1.0.0",
+  "description": "Search, compare and view current IT job offers published on theprotocol.it in Poland.",
+  "author": {
+    "name": "theprotocol.it",
+    "url": "https://theprotocol.it/"
+  },
+  "homepage": "https://theprotocol.it/",
+  "repository": "https://github.com/GrupaPracuj/claude-plugins",
+  "license": "Apache-2.0",
+  "keywords": ["jobs", "job-search", "poland", "it", "theprotocol", "recruitment"]
+}

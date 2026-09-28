@@ -1,0 +1,16 @@
+{
+  "name": "grupa-pracuj",
+  "owner": {
+    "name": "Grupa Pracuj S.A."
+  },
+  "description": "Official Claude plugins from Grupa Pracuj.",
+  "plugins": [
+    {
+      "name": "theprotocol-it",
+      "source": "./theprotocol/theprotocol-it",
+      "description": "Search, compare and view current IT job offers published on theprotocol.it in Poland.",
+      "category": "productivity",
+      "tags": ["jobs", "job-search", "career", "recruitment", "it", "poland", "theprotocol"]
+    }
+  ]
+}
