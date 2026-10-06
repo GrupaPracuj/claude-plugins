@@ -9,10 +9,6 @@
   },
   "homepage": "https://theprotocol.it/",
   "repository": "https://github.com/GrupaPracuj/claude-plugins",
-  "privacyPolicyUrl": "https://theprotocol.it/polityka-prywatnosci",
-  "termsOfServiceUrl": "https://theprotocol.it/regulamin",
-  "supportUrl": "https://hr.theprotocol.it/",
-  "icon": "./icon.png",
   "license": "Apache-2.0",
   "keywords": ["jobs", "job-search", "poland", "it", "theprotocol", "recruitment"]
 }
