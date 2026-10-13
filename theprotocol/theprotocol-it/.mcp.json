@@ -2,7 +2,7 @@
   "mcpServers": {
     "theprotocol.it": {
       "type": "http",
-      "url": "https://grus-api.theprotocol.it/mcp"
+      "url": "https://grus-api.theprotocol.it/mcp?ui=off"
     }
   }
 }
