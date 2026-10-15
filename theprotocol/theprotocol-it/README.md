@@ -6,7 +6,7 @@ Search and browse current IT job offers published on [theprotocol.it](https://th
 
 | Component | Details |
 |---|---|
-| MCP server | `theprotocol.it` → `https://grus-api.theprotocol.it/mcp` (streamable HTTP, no authentication) |
+| MCP server | `theprotocol.it` → `https://grus-api.theprotocol.it/mcp?ui=off` (streamable HTTP, no authentication) |
 | Skill | `theprotocol-job-search` — maps natural-language requests to search filters, shows results and offer details |
 
 ### MCP tools (all read-only)
@@ -15,7 +15,7 @@ Search and browse current IT job offers published on [theprotocol.it](https://th
 - `get_job_offer_details` — full offer: responsibilities, requirements, technologies, benefits, recruitment stages, dates and link.
 - `get_dictionary_elements` — filter codes (work modes, position levels, contract types, specializations, regions, …).
 
-Results and offer details are rendered by the server as interactive cards (MCP Apps); Claude adds a short comment and suggests how to narrow the search.
+Claude presents each search result as a Markdown block with the offer title, salary ranges and link, and presents offer details in a structured layout matching the theprotocol.it offer view; both formats are based on the skill's templates. It also adds a short comment and suggests how to narrow the search.
 
 ## Installation
 

@@ -13,16 +13,23 @@ Help the user find IT job offers on theprotocol.it and look at their details. Th
 | `get_job_offer_details` | Full offer by `groupId`: responsibilities, requirements (expected/optional), technologies, benefits, recruitment stages, project description, publication and expiry dates. |
 | `get_dictionary_elements` | Codes for filters: ContractType, PositionLevel, WorkSchedule, TimeUnit, Currency, SalaryKind, WorkMode, ItCompetence, ItSpecialization, Region, ModelOfPayment. |
 
+## Server UI switch (`ui=off`)
+
+The server can attach its own UI to `search_job_offers` and `get_job_offer_details`. It turns that UI off for a connection when the request carries the query parameter `ui=off` (e.g. `https://grus-api.theprotocol.it/mcp?ui=off`) or the header `X-Grus-Ui: off`. With UI off, the tools come without `_meta.ui` and return only the structured JSON (`structuredContent`), which you present yourself as described below.
+
+- This plugin is meant to connect with `ui=off`. If the user sets up the connector by hand (e.g. a custom connector in claude.ai or `claude mcp add`), tell them to use the URL with `?ui=off` or to send the `X-Grus-Ui: off` header.
+- The switch is part of the connection, not a tool argument — never pass `ui` to any tool.
+
 ## How results are shown
 
-The server renders its own interactive UI (MCP Apps widget) in the user's app for search results and offer details. You only receive the JSON; the user sees nicely formatted cards. So:
+Present results yourself in text, using the templates in `assets/` — [offer-list-template.md](assets/offer-list-template.md) for search results and [offer-details-template.md](assets/offer-details-template.md) for offer details (see [Offer details](#offer-details)):
 
-- **Do not re-list the offers in text** (no tables, no bullet list of titles/salaries). Repeating what the widget already shows is noise.
-- Under the widget, write a short comment (2–4 sentences): how many offers matched in total (`totalCount`), which filters you applied (in plain words), and one useful next step — narrow down (seniority, city, salary, contract), show the next page, or open details of a promising offer.
-- Refer to individual offers by title + company when useful ("the Scalo offer looks closest to what you described"), but don't duplicate their data.
-- If the user asks a concrete question the widget doesn't answer directly (e.g. "which of these are B2B above 150 zł/h?", "does this offer require Kubernetes?"), answer it from the JSON — briefly and only with data actually present in the response.
+- **Read the template before presenting the first results** in the conversation and follow it exactly: one block per offer — the offer title as a `##` heading, then one paragraph with salary lines starting with `&emsp;•&emsp;` (amounts in bold, units normalized to one spelling; no salary lines when the offer gives no salary) and, as its last line, the offer link hidden behind the text `Zobacz na theprotocol.it` (`View on theprotocol.it` when you reply in English).
+- One salary per line, lines joined with a hard line break (`\` at the end), no empty lines inside the block. Not a Markdown list. No table, no HTML tags (`<br>` etc.; `&emsp;` is the only allowed entity), no other lines in the block, no separate list of the same offers.
+- After the list of offers, write a short comment (2–4 sentences): how many offers matched in total (`totalCount`), which filters you applied (in plain words), and one useful next step — narrow down (seniority, city, salary, contract), show the next page, or open details of a promising offer.
+- If the user asks a concrete question the listing doesn't answer (e.g. "which of these are B2B above 150 zł/h?", "does this offer require Kubernetes?"), answer it from the JSON — briefly and only with data actually present in the response.
 
-Reply in the language the user writes in. Offer content is mostly Polish; translate/summarise when the user writes in another language.
+Write your own text (comments, answers, questions) in the language the user writes in. Show offer details — labels and all content — in the offer's own language (see the details template); never translate them. The offer list has no language info, so its link text and salary units follow the user's language while titles stay as returned. If the user asks for a translation, give it separately, below the offer.
 
 ## Searching
 
@@ -34,7 +41,8 @@ Reply in the language the user writes in. Offer content is mostly Polish; transl
    - Contract → `typesOfContractIds` (umowa o pracę 0, B2B 3, zlecenie 2, …).
    - Area (backend, frontend, DevOps, QA, AI/ML…) → `itSpecializationsCodes`.
    - Company → `employerNames`. Minimum pay → `salaryFrom` (see caveat below).
-2. **Default page size is 10** (`pageSize: 10`) unless the user asks for more. For "more"/"next", repeat the same filters with `pageNumber + 1`.
+   - Offers with disclosed salaries, when the user asks for offers "with salary" or "with salary ranges" without specifying a minimum amount → `salaryFrom: 1`. If the user provides an explicit minimum amount, use that amount instead.
+2. **Page size is at least 10.** Use `pageSize: 10` by default. If the user requests fewer than 10 results, still send `pageSize: 10`; for larger requests, use the requested value up to the server maximum of 50. For "more"/"next", repeat the same filters with `pageNumber + 1`.
 3. **Don't over-ask.** If the request is searchable as is ("oferty z Reactem"), search first, then suggest refinements. Ask a question only when the request is too vague to search at all.
 4. **0 results:** say so, then relax the most restrictive filter (usually salary, seniority or city) and try once more, telling the user what you changed.
 
@@ -46,7 +54,8 @@ Reply in the language the user writes in. Offer content is mostly Polish; transl
 
 - Call `get_job_offer_details` with the offer's **`groupId`** — never the `offerId` (they look alike; `offerId` fails).
 - When the user says "this one", "the second one", "the Scalo offer", resolve it from the most recent search results in the conversation.
-- The widget shows the offer. Add a brief comment only if it helps: answer the user's question, point out key requirements, or note the expiry date (`archivizationDateUtc`) if it's close. Always make it easy to apply by referring to the offer link (`offerUrl`) when the user wants to apply.
+- Present the offer using [assets/offer-details-template.md](assets/offer-details-template.md) — read it before showing the first offer details in the conversation. It mirrors the widget's details view: title, badges (in the offer's language), company, publication dates, labelled salary list (same amount format as the offer list), parameters (level, work mode, location, schedule, specialization), text sections in a fixed order, and the `offerUrl` link behind `Zobacz na theprotocol.it` (`View on theprotocol.it` for English offers).
+- After the details, add a brief comment only if it helps: answer the user's question, point out key requirements, or note that the offer expires soon.
 
 ## Accuracy
 
