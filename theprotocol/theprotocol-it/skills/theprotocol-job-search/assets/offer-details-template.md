@@ -1,6 +1,6 @@
 # Offer details template
 
-Use this template to present the result of `get_job_offer_details`. It shows the same data, in the same order, as the offer details view of the theprotocol.it widget. Omit every line or section whose data is missing (the only exception is the title, see below) — never write placeholders like "brak" or guess values.
+Use this template to present the result of `get_job_offer_details`. It shows the same data, in the same order, as the offer details view of the server's widget. Omit every line or section whose data is missing (the only exception is the title, see below) — never write placeholders like "brak" or guess values.
 
 ## Template
 
@@ -57,7 +57,7 @@ All paths are relative to the offer object returned by `get_job_offer_details`.
 | `{locations}` | `partitions[].workplaces[].location` and `attributes.workplaces[].location` | Deduplicate, join with ` • `. |
 | `{workSchedules}` | `attributes.employment.workSchedules[].name` | Join with ` • `. |
 | `{specializations}` | `attributes.specializations[].name` | Join with ` • `. |
-| `{offerUrl}` | `offerUrl` | Always behind the CTA text, never as a bare URL. Shown twice: after the parameters and at the very end. No URL → omit both links. |
+| `{offerUrl}` | `offerUrl` | Always behind the CTA text, never as a bare URL. Copy it exactly as returned — never add, remove or change query parameters (it already contains `utm_source`). Shown twice: after the parameters and at the very end. No URL → omit both links. |
 | Sections | `textSections[]`, matched by `type` | Render only the types listed below, in that order, regardless of the order in the data. `elements` non-empty → bullet list of elements; otherwise `plainText` as a paragraph; both empty → omit the section. Copy content as returned — don't shorten, merge or reword it (never translate — content stays in the offer's language). |
 
 Contract abbreviations: umowa o pracę → `UoP`, umowa o pracę tymczasową → `UoPT`, umowa zlecenie → `UZ`, umowa o dzieło → `UoD`, umowa agencyjna → `UA`, umowa o staż / umowa stażowa → `UoS`, kontrakt B2B / B2B → `B2B`. English names: contract of employment → `CoE`, temporary employment contract → `TEC`, contract of mandate → `CoM`, contract for specific work → `CfSW`, B2B contract → `B2B`, internship contract → `IC`, agency contract → `AC`. Any other name → initials of its words.

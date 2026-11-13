@@ -25,7 +25,7 @@ Use this template to present results of `search_job_offers`. One block per offer
 |---|---|---|
 | `{title}` | `title` | Copy as returned. Escape a leading `#` with `\` if present. |
 | `{salary line}` | `contracts[]` with `salary.from` and/or `salary.to` | One line per contract: `**{from}–{to}** {currency} {kind}/{timeUnit} ({contract})`. Bold only the amount range — never the currency or the rest. Amounts grouped by thousands with a regular space (`21 700`). Only one bound, or `to` ≤ `from` → a single amount (`**180** zł…`, never `180–180`). Parts below are normalized; a missing part is skipped. |
-| `{url}` | `url` | Always behind the `{label.cta}` text, never as a bare URL. |
+| `{url}` | `url` | Always behind the `{label.cta}` text, never as a bare URL. Copy it exactly as returned — never add, remove or change query parameters (it already contains `utm_source`). |
 
 ### Salary parts
 
