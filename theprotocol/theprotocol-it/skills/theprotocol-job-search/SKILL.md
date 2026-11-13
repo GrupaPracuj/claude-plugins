@@ -1,11 +1,11 @@
 ---
 name: theprotocol-job-search
-description: Searches and displays IT job offers from theprotocol.it using the the:protocol MCP server (search_job_offers, get_job_offer_details, get_dictionary_elements). Use this skill whenever the user wants to find, browse or look up job offers, vacancies or IT roles — e.g. "znajdź oferty dla senior Java developera w Krakowie", "szukam pracy zdalnej z Pythonem", "pokaż szczegóły tej oferty", "jakie są oferty w firmie X", "find remote React jobs over 20k" — even if theprotocol.it is not mentioned by name, and whenever the user asks about requirements, salary or work mode of a specific offer from the results. Do not use it for non-IT jobs, writing CVs or cover letters, or general career advice without a request for offers.
+description: Searches and displays IT job offers using the job offers MCP server tools (search_job_offers, get_job_offer_details, get_dictionary_elements). Use this skill only when the user wants to find, browse or look up job offers for IT or technology roles (software development, DevOps, QA, data, AI/ML, security, IT support and similar) — e.g. "znajdź oferty dla senior Java developera w Krakowie", "szukam pracy zdalnej z Pythonem", "oferty DevOps w Krakowie", "find remote React jobs over 20k" — the user does not need to name any job board or website, and when the user asks about details, requirements, salary or work mode of an offer returned by this skill. Do not use it for jobs outside IT (e.g. cook, driver, nurse, retail, warehouse or accounting roles), for job requests that name no IT role, technology or IT specialization, for writing CVs or cover letters, or for general career advice without a request for offers. The server has only IT offers, so never call its tools for non-IT jobs.
 ---
 
-# the:protocol job search
+# IT job search
 
-Help the user find IT job offers on theprotocol.it and look at their details. The MCP server has three tools:
+Help the user find IT job offers and look at their details. The job offers MCP server has three tools:
 
 | Tool | Purpose |
 |---|---|
@@ -13,9 +13,16 @@ Help the user find IT job offers on theprotocol.it and look at their details. Th
 | `get_job_offer_details` | Full offer by `groupId`: responsibilities, requirements (expected/optional), technologies, benefits, recruitment stages, project description, publication and expiry dates. |
 | `get_dictionary_elements` | Codes for filters: ContractType, PositionLevel, WorkSchedule, TimeUnit, Currency, SalaryKind, WorkMode, ItCompetence, ItSpecialization, Region, ModelOfPayment. |
 
+## Scope: IT roles only
+
+The job offers server lists only IT and technology jobs. Call the tools only when the request clearly concerns an IT role, a technology (e.g. Java, React, SQL, AWS) or an IT specialization (backend, frontend, DevOps, QA, data, AI/ML, security, IT support…).
+
+- **Non-IT jobs** (e.g. "oferty pracy dla kucharza w Gdańsku", "praca jako kierowca", "nurse jobs"): do not call any tool. Say briefly that this search covers IT jobs only.
+- **No IT role or technology given** (e.g. "znajdź mi pracę w Warszawie", "find job offers"): do not search yet. Ask in one sentence which IT role or technology the user is interested in.
+
 ## Server UI switch (`ui=off`)
 
-The server can attach its own UI to `search_job_offers` and `get_job_offer_details`. It turns that UI off for a connection when the request carries the query parameter `ui=off` (e.g. `https://grus-api.theprotocol.it/mcp?ui=off`) or the header `X-Grus-Ui: off`. With UI off, the tools come without `_meta.ui` and return only the structured JSON (`structuredContent`), which you present yourself as described below.
+The server can attach its own UI to `search_job_offers` and `get_job_offer_details`. It turns that UI off for a connection when the request carries the query parameter `ui=off` (the server URL with `?ui=off` appended, as in this plugin's `.mcp.json`) or the header `X-Grus-Ui: off`. With UI off, the tools come without `_meta.ui` and return only the structured JSON (`structuredContent`), which you present yourself as described below.
 
 - This plugin is meant to connect with `ui=off`. If the user sets up the connector by hand (e.g. a custom connector in claude.ai or `claude mcp add`), tell them to use the URL with `?ui=off` or to send the `X-Grus-Ui: off` header.
 - The switch is part of the connection, not a tool argument — never pass `ui` to any tool.
@@ -24,7 +31,7 @@ The server can attach its own UI to `search_job_offers` and `get_job_offer_detai
 
 Present results yourself in text, using the templates in `assets/` — [offer-list-template.md](assets/offer-list-template.md) for search results and [offer-details-template.md](assets/offer-details-template.md) for offer details (see [Offer details](#offer-details)):
 
-- **Read the template before presenting the first results** in the conversation and follow it exactly: one block per offer — the offer title as a `##` heading, then one paragraph with salary lines starting with `&emsp;•&emsp;` (amounts in bold, units normalized to one spelling; no salary lines when the offer gives no salary) and, as its last line, the offer link hidden behind the text `Zobacz na theprotocol.it` (`View on theprotocol.it` when you reply in English).
+- **Read the template before presenting the first results** in the conversation and follow it exactly: one block per offer — the offer title as a `##` heading, then one paragraph with salary lines starting with `&emsp;•&emsp;` (amounts in bold, units normalized to one spelling; no salary lines when the offer gives no salary) and, as its last line, the offer link hidden behind the `label.cta` text from the template (PL or EN by your reply language).
 - One salary per line, lines joined with a hard line break (`\` at the end), no empty lines inside the block. Not a Markdown list. No table, no HTML tags (`<br>` etc.; `&emsp;` is the only allowed entity), no other lines in the block, no separate list of the same offers.
 - After the list of offers, write a short comment (2–4 sentences): how many offers matched in total (`totalCount`), which filters you applied (in plain words), and one useful next step — narrow down (seniority, city, salary, contract), show the next page, or open details of a promising offer.
 - If the user asks a concrete question the listing doesn't answer (e.g. "which of these are B2B above 150 zł/h?", "does this offer require Kubernetes?"), answer it from the JSON — briefly and only with data actually present in the response.
@@ -36,7 +43,7 @@ Write your own text (comments, answers, questions) in the language the user writ
 1. **Map the request to filters.** Most filters take dictionary codes, not free text. Call `get_dictionary_elements` for that dictionary.
    - Technology, role or free text → `keywords` (matches title, technology, location and company name — so results are broad; e.g. "Python" also returns analyst or PostgreSQL roles mentioning it).
    - City → `cities` (plain names, e.g. `"Warszawa"`, `"Kraków"`). Voivodeship / "abroad" → `regionsOfWorld` codes.
-   - Remote / hybrid / office → `workModeCodes`: `home-office`, `hybrid`, `full-office`, `mobile`. Polish words like `"zdalna"` return 0 results even though search results display work modes that way.
+   - Remote / hybrid / office → `workModeCodes`: `home-office`, `hybrid`, `full-office`, `mobile`. Polish words like `"zdalna"` return 0 results; use the codes, which are also what search results return.
    - Seniority → `positionLevelIds` as integers (junior 17, mid/regular 4, senior 18, expert 19, …).
    - Contract → `typesOfContractIds` (umowa o pracę 0, B2B 3, zlecenie 2, …).
    - Area (backend, frontend, DevOps, QA, AI/ML…) → `itSpecializationsCodes`.
@@ -54,7 +61,7 @@ Write your own text (comments, answers, questions) in the language the user writ
 
 - Call `get_job_offer_details` with the offer's **`groupId`** — never the `offerId` (they look alike; `offerId` fails).
 - When the user says "this one", "the second one", "the Scalo offer", resolve it from the most recent search results in the conversation.
-- Present the offer using [assets/offer-details-template.md](assets/offer-details-template.md) — read it before showing the first offer details in the conversation. It mirrors the widget's details view: title, badges (in the offer's language), company, publication dates, labelled salary list (same amount format as the offer list), parameters (level, work mode, location, schedule, specialization), text sections in a fixed order, and the `offerUrl` link behind `Zobacz na theprotocol.it` (`View on theprotocol.it` for English offers).
+- Present the offer using [assets/offer-details-template.md](assets/offer-details-template.md) — read it before showing the first offer details in the conversation. It mirrors the widget's details view: title, badges (in the offer's language), company, publication dates, labelled salary list (same amount format as the offer list), parameters (level, work mode, location, schedule, specialization), text sections in a fixed order, and the `offerUrl` link behind the template's `label.cta` text (EN label for English offers).
 - After the details, add a brief comment only if it helps: answer the user's question, point out key requirements, or note that the offer expires soon.
 
 ## Accuracy
